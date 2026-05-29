@@ -10,7 +10,7 @@ Use log evidence as the source of truth. When behavior is uncertain, mine the lo
 
 - Work from `/home/ubuntu/pyylmao`.
 - Run the bot and tests in Docker. The user explicitly asked that this whole thing run in Docker.
-- This directory is not a git repository, so `git status` and `git diff` are not useful here.
+- This directory is now a git repository on branch `main`, pushed to `https://github.com/hheesecaker/pyylmao.git`. Use normal `git status` / `git diff` locally, but keep secrets out of commits.
 - Use `apply_patch` for file edits.
 - Historical WeeChat logs are in the Incus VM `diverse-deer` under `/root/.local/share/weechat/logs/*.weechatlog`.
 - The live bot runtime is in its own Incus VM, `pyylmao-bot`. Do not run the bot in `diverse-deer`; that VM is the log/WeeChat source.
@@ -100,6 +100,20 @@ The test suite currently passes locally, in Docker, and inside the Alpine `pyylm
 ```text
 482 tests passed
 ```
+
+The current repository state was committed as:
+
+```text
+abf4c4704545d8455cacf120535b8e5bb3fcc95d Initial pyylmao reconstruction
+```
+
+and pushed to:
+
+```text
+https://github.com/hheesecaker/pyylmao.git
+```
+
+The local remote is token-free. GitHub auth was supplied only as a one-shot HTTP header for the initial push; do not store PATs or OpenRouter keys in `.git/config`, remotes, `.env`, AGENTS.md, or committed files.
 
 Recent focused suites also passed:
 
