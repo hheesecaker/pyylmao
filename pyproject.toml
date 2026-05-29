@@ -1,0 +1,21 @@
+[project]
+name = "pyylmao"
+version = "0.1.0"
+description = "IRC bot reconstruction based on WeeChat log behavior"
+requires-python = ">=3.12"
+dependencies = [
+    "Pillow>=10.0",
+    "pyfiglet>=1.0",
+    "pypdf>=4.0",
+    "chess>=1.11",
+    "youtube-transcript-api>=0.6.2",
+    "yt-dlp>=2025.1.0",
+    "websocket-client>=1.8",
+]
+
+[tool.pyylmao]
+default-server = "irc.notgay.men"
+default-port = 6667
+
+[tool.setuptools.packages.find]
+include = ["pyylmao*", "llm", "irc*", "irclib*"]

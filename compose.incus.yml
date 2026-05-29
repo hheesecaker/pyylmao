@@ -1,0 +1,25 @@
+services:
+  bot:
+    build:
+      context: .
+      network: host
+    network_mode: host
+    environment:
+      PYYLMAO_SERVER: irc.notgay.men
+      PYYLMAO_PORT: "6667"
+      PYYLMAO_TLS: "false"
+      PYYLMAO_NICK: pyylmao_oss
+      PYYLMAO_USERNAME: pyylmao_oss
+      PYYLMAO_REALNAME: pyylmao_oss
+      PYYLMAO_CHANNELS: "#not-gay"
+      PYYLMAO_LINE_DELAY_SECONDS: "0"
+  image-server:
+    build:
+      context: .
+      network: host
+    network_mode: host
+  tests:
+    build:
+      context: .
+      network: host
+    network_mode: host

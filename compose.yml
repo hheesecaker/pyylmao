@@ -1,0 +1,35 @@
+services:
+  bot:
+    build: .
+    image: pyylmao:local
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PYYLMAO_STATE: /var/lib/pyylmao/pyylmao-state.json
+      PYYLMAO_WWW_DIR: /var/lib/pyylmao/www
+      PYYLMAO_WWW_BASE_URL_FILE: /var/lib/pyylmao/www-base-url
+    volumes:
+      - pyylmao-data:/var/lib/pyylmao
+
+  image-server:
+    image: pyylmao:local
+    build: .
+    restart: unless-stopped
+    command: ["python", "-m", "pyylmao.image_server", "--dir", "/var/lib/pyylmao/www", "--base-url-file", "/var/lib/pyylmao/www-base-url"]
+    environment:
+      PYYLMAO_WWW_DIR: /var/lib/pyylmao/www
+      PYYLMAO_WWW_BASE_URL_FILE: /var/lib/pyylmao/www-base-url
+      PYYLMAO_CLOUDFLARED_PROTOCOL: http2
+    volumes:
+      - pyylmao-data:/var/lib/pyylmao
+
+  tests:
+    image: pyylmao:local
+    build: .
+    command: ["python", "-m", "unittest", "discover", "-s", "tests"]
+    profiles: ["test"]
+
+volumes:
+  pyylmao-data:
