@@ -45,6 +45,11 @@ COMMAND_MODULES = {
     "ansi2irc": "ansi2irc",
     "ansi2irc2": "ansi2irc",
     "ascii": "ascii_art",
+    "bwatchadd": "filters",
+    "bwatchdel": "filters",
+    "bwatchlist": "filters",
+    "chess": "chess_game",
+    "clearhistory": "router",
     "cmdlist": "command_list",
     "convo": "router",
     "cows": "cowsay",
@@ -53,6 +58,7 @@ COMMAND_MODULES = {
     "eval": "eval_command",
     "fortune": "fortune",
     "forecast": "weather",
+    "curl2": "curl",
     "gpt": "router",
     "hf": "huggingface",
     "howsblair": "blair",
@@ -71,11 +77,14 @@ COMMAND_MODULES = {
     "lepro": "light",
     "link_title": "link_preview",
     "ligma": "ligma",
+    "llm_alias": "aliases",
     "md2irc": "helpers/md2irc",
     "names": "history_store",
     "nostr": "nostr",
+    "palette99": "palette",
     "pheno": "phenoguessr",
     "phenoguessr": "phenoguessr",
+    "ping": "router",
     "pmall": "pmall",
     "poll_vote": "vote",
     "random": "random_command",
@@ -98,6 +107,70 @@ COMMAND_MODULES = {
     "yt": "summary",
     "ytsearch": "ytsearch",
     "ytsummary": "summary",
+}
+
+
+RECONSTRUCTED_COMMAND_TOOLS = {
+    "ansi2irc",
+    "ascii",
+    "bwatchadd",
+    "bwatchdel",
+    "bwatchlist",
+    "cat",
+    "chess",
+    "chkdomain",
+    "clearhistory",
+    "cmdlist",
+    "cows",
+    "cp",
+    "crt",
+    "curl",
+    "curl2",
+    "define",
+    "echo",
+    "figlet",
+    "forecast",
+    "gay",
+    "godsays",
+    "hf",
+    "host",
+    "horoscope",
+    "howsblair",
+    "howsblair2",
+    "iching",
+    "imdb",
+    "invite",
+    "kv",
+    "lepro",
+    "ligma",
+    "livebench",
+    "llm_alias",
+    "llm_prices",
+    "mdcat",
+    "models",
+    "nostr",
+    "palette99",
+    "phenoguessr",
+    "ping",
+    "poll",
+    "random",
+    "reminders",
+    "seen",
+    "stocks",
+    "test",
+    "teste",
+    "todo",
+    "tools",
+    "trivia",
+    "twitter",
+    "ufc",
+    "urbandict",
+    "vocoder",
+    "vote",
+    "vtrade",
+    "weather",
+    "ytsearch",
+    "zscore",
 }
 
 
@@ -437,6 +510,8 @@ class LLMToolRegistry:
             for name, _enabled, pattern in COMMANDS:
                 if not valid_llm_tool_name(name) or name in seen:
                     continue
+                if name not in RECONSTRUCTED_COMMAND_TOOLS:
+                    continue
                 if not self.command_trigger_enabled(name):
                     continue
                 rows.append(command_tool_schema(name, pattern, "pyylmao_commands"))
@@ -498,7 +573,11 @@ class LLMToolRegistry:
     def command_tool_exists(self, name: str) -> bool:
         if self.generated_command_entry(name) is not None:
             return True
-        return self.command_runner is not None and any(command_name == name for command_name, _, _ in COMMANDS)
+        return (
+            self.command_runner is not None
+            and name in RECONSTRUCTED_COMMAND_TOOLS
+            and any(command_name == name for command_name, _, _ in COMMANDS)
+        )
 
     def tool_read_command(self, context: LLMToolContext, name: str = "") -> str:
         del context

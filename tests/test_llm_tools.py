@@ -44,10 +44,17 @@ class LLMToolRegistryTests(unittest.TestCase):
         self.assertIn("def render_ansi2irc_command", registry.execute(context, "read_command", {"name": "ansi2irc"}))
         self.assertIn("def render_ansi2irc_command", registry.execute(context, "read_command", {"name": "ansi2irc2"}))
         self.assertIn("class AsciiArtStore", registry.execute(context, "read_command", {"name": "ascii"}))
+        self.assertIn("class FilterStore", registry.execute(context, "read_command", {"name": "bwatchadd"}))
+        self.assertIn("class ChessStore", registry.execute(context, "read_command", {"name": "chess"}))
+        self.assertIn("def parse_llm_prompt", registry.execute(context, "read_command", {"name": "clearhistory"}))
         self.assertIn("class BlueskyFeedWatcher", registry.execute(context, "read_command", {"name": "drink"}))
         self.assertIn("class ReminderStore", registry.execute(context, "read_command", {"name": "reminder"}))
+        self.assertIn("def render_curl_command", registry.execute(context, "read_command", {"name": "curl2"}))
         self.assertIn("def render_hf_command", registry.execute(context, "read_command", {"name": "hf"}))
         self.assertIn("def render_test_command", registry.execute(context, "read_command", {"name": "teste"}))
+        self.assertIn("class AliasStore", registry.execute(context, "read_command", {"name": "llm_alias"}))
+        self.assertIn("def render_palette99", registry.execute(context, "read_command", {"name": "palette99"}))
+        self.assertIn("def parse_llm_prompt", registry.execute(context, "read_command", {"name": "ping"}))
         self.assertIn("def render_urban_command", registry.execute(context, "read_command", {"name": "urban"}))
         self.assertIn("def render_stock_command", registry.execute(context, "read_command", {"name": "stock"}))
         self.assertIn("def render_fortune_command", registry.execute(context, "read_command", {"name": "fortune"}))
@@ -370,6 +377,41 @@ class LLMToolRegistryTests(unittest.TestCase):
         self.assertEqual(schemas["read_command"]["parameters"]["required"], [])
         self.assertEqual(schemas["write_command"]["parameters"]["required"], [])
         self.assertIn("Prefer cmd_name", schemas["run"]["description"])
+
+    def test_reconstructed_command_tool_schemas_only_expose_runnable_sync_commands(self) -> None:
+        registry, state, _ = self.make_registry()
+        calls: list[tuple[str, list[str]]] = []
+
+        def command_runner(context: LLMToolContext, name: str, args: list[str]) -> list[str]:
+            calls.append((name, args))
+            return [f"ran {name}: {' '.join(args)}"]
+
+        registry.command_runner = command_runner
+        names = {item["function"]["name"] for item in registry.schemas()}
+
+        self.assertIn("cows", names)
+        self.assertIn("cmdlist", names)
+        self.assertIn("chkdomain", names)
+        self.assertIn("kv", names)
+        self.assertNotIn("ytsearch", names)
+        self.assertNotIn("anagram", names)
+        self.assertNotIn("drink", names)
+        self.assertNotIn("img2irc", names)
+        self.assertNotIn("imgcap", names)
+        self.assertNotIn("radio", names)
+        self.assertNotIn("youtube", names)
+        self.assertEqual(
+            registry.execute(LLMToolContext("#c", (), state), "cows", {"args": "old mcdonald"}),
+            "ran cows: old mcdonald",
+        )
+        self.assertEqual(calls, [("cows", ["old mcdonald"])])
+        self.assertEqual(
+            registry.execute(LLMToolContext("#c", (), state), "imgcap", {"args": "https://example.test/a.png"}),
+            "Unknown tool: imgcap",
+        )
+        state.data["trigger_enabled"] = {"ytsearch": True}
+        names = {item["function"]["name"] for item in registry.schemas()}
+        self.assertIn("ytsearch", names)
 
     def test_all_tools_table_rows_have_schema_when_enabled(self) -> None:
         registry, state, _ = self.make_registry()

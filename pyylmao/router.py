@@ -1252,6 +1252,10 @@ def run_tool_command_texts(cmd_name: str, args: list[str]) -> list[str]:
         if "ligma.pro/" in arg_text:
             return [arg_text]
         return [f"https://ligma.pro/@r000t/{arg_text}".strip()]
+    if name == "chkdomain":
+        return [f"?{arg_text}".strip()]
+    if name == "vote":
+        return [arg_text] if arg_text else []
 
     def with_args(prefix: str) -> str:
         if prefix.endswith(":"):
@@ -1262,6 +1266,11 @@ def run_tool_command_texts(cmd_name: str, args: list[str]) -> list[str]:
         "ansi2irc": ["!ansi2irc"],
         "ansi2irc2": ["!ansi2irc"],
         "irc2ansi": ["!irc2ansi"],
+        "bwatchadd": ["!add"],
+        "bwatchdel": ["!del"],
+        "bwatchlist": ["!blist"],
+        "clearhistory": ["!clear"],
+        "cmdlist": ["!cmds"],
         "iching": ["!fortune"],
         "fortune": ["!fortune"],
         "horoscope": [".horoscope"],
@@ -1280,6 +1289,11 @@ def run_tool_command_texts(cmd_name: str, args: list[str]) -> list[str]:
         "trivia": ["!trivia"],
         "ufc": ["!ufc"],
         "vocoder": ["!vocoder"],
+        "howsblair": ["!blair"],
+        "howsblair2": ["!blair2"],
+        "hf": ["!hf"],
+        "imdb": ["!imdb"],
+        "kv": ["!kv"],
         "teste": ["!teste"],
         "weather": ["!weather"],
         "forecast": ["!forecast"],
@@ -1287,10 +1301,15 @@ def run_tool_command_texts(cmd_name: str, args: list[str]) -> list[str]:
         "stocks": ["!stock"],
         "models": ["!models"],
         "llm_prices": ["$llm"],
+        "llm_alias": ["!alias"],
         "img2irc": ["!img2irc"],
         "imghax": ["!hax"],
         "invite": ["!invite"],
+        "palette99": ["!palette99"],
+        "ping": ["ping"],
+        "poll": ["!poll"],
         "random": [".random"],
+        "reminders": ["!reminders"],
         "mdcat": ["!mdcat"],
         "cat": ["!cat"],
         "curl": ["!curl"],
@@ -1301,6 +1320,7 @@ def run_tool_command_texts(cmd_name: str, args: list[str]) -> list[str]:
         "cows": ["!cowsay"],
         "echo": ["!echo"],
         "todo": ["!todo"],
+        "tools": ["!tools"],
     }
     prefixes = aliases.get(name, [f"!{name}", name])
     candidates = [with_args(prefix) for prefix in prefixes]

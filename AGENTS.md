@@ -98,16 +98,10 @@ After the latest Alpine VM container restart, a fresh independent IRC client che
 The test suite currently passes locally, in Docker, and inside the Alpine `pyylmao-bot` VM:
 
 ```text
-482 tests passed
+483 tests passed
 ```
 
-The current repository state was committed as:
-
-```text
-abf4c4704545d8455cacf120535b8e5bb3fcc95d Initial pyylmao reconstruction
-```
-
-and pushed to:
+The repository has been pushed to:
 
 ```text
 https://github.com/hheesecaker/pyylmao.git
@@ -157,7 +151,10 @@ python3 -m unittest tests.test_cp tests.test_router tests.test_llm_tools tests.t
 python3 -m unittest tests.test_pmall tests.test_llm_tools tests.test_generated_commands
 python3 -m unittest tests.test_seen tests.test_router tests.test_llm_tools
 python3 -m unittest tests.test_link_preview tests.test_ytsearch
+python3 -m unittest tests.test_llm_tools tests.test_router tests.test_generated_commands
 ```
+
+After the latest command-backed LLM tool schema parity change, focused local tests, the full local suite, Docker tests, and the full suite inside the Alpine `pyylmao-bot` image all passed with 483 tests. The OpenRouter registry no longer advertises every row in `COMMANDS` as a callable command tool: it now exposes only reconstructed synchronous commands that the router command runner can actually execute, while leaving async/image preview/source-only surfaces such as `drink`, `img2irc`, `imgcap`, `youtube`, `radio`, and the postponed `anagram` out of direct tool schemas. Enabled generated commands are still exposed as before. `read_command` source parity was tightened for newly exposed command-tool names such as `bwatchadd`, `bwatchdel`, `bwatchlist`, `chess`, `clearhistory`, `curl2`, `llm_alias`, `palette99`, and `ping`, and command-tool dispatch now synthesizes the original trigger shapes for non-obvious commands such as `bwatchadd -> !add`, `bwatchlist -> !blist`, `cmdlist -> !cmds`, `chkdomain -> ?domain`, `howsblair -> !blair`, `llm_alias -> !alias`, and bare poll `vote`. The live Alpine bot container was rebuilt and recreated without recreating `image-server`; direct live-container checks confirmed `cows` and `cmdlist` are exposed while `imgcap` and `youtube` are not, `cows` executes through the command runner, and `imgcap` returns `Unknown tool: imgcap` as a direct tool. A fresh independent IRC check confirmed `pyylmao_oss` is in `#not-gay` and private `ping -> p0ng!`. The image-server tunnel remained `https://followed-lewis-located-faster.trycloudflare.com` because the service was left running. After pruning stopped containers/unused images/build cache without touching volumes and rebuilding the bot image, the Alpine VM root filesystem was about 92% used.
 
 After the latest YouTube raw IRC formatting/date fallback parity change, focused local tests, the full local suite, Docker tests, and the full suite inside the Alpine `pyylmao-bot` image all passed with 482 tests. A public IRC probe against the original `pyylmao` on `irc.gangnet.org #tclmafia` captured the exact raw YouTube preview control-code layout: logo `\x030,4 ▶ \x0f`, title/channel inside `\x031,15 ... \x0f`, duration as `\x031,15[00:03:34]\x0f`, counts with only the numeric part bold such as `\x031,15 \x021777.3M\x02 views \x03`, likes ending with reset, and the date as a bold island `\x031,15 \x02Oct 25, 2009\x02\x0f`. `pyylmao/link_preview.py` now renders that layout instead of the previous approximation that left the title uncolored, bolded whole count labels, and left dates non-bold. The web fallback also inspects `ytInitialPlayerResponse` and HTML metadata for dates/durations when `yt-dlp`/player extraction is partial, while `videoDescriptionHeaderRenderer` still supplies Shorts dates such as `May 02, 2026`. The live Alpine bot container was rebuilt and recreated without recreating `image-server`; direct live-container checks confirmed the raw renderer and a live Shorts fetch with `May 02, 2026`, and a fresh independent private IRC check confirmed `pyylmao_oss` is in `#not-gay`, `ping -> p0ng!`, and a private `dQw4w9WgXcQ` preview arrived with the original color/reset layout and bold `Oct 25, 2009` date. The image-server tunnel remained `https://followed-lewis-located-faster.trycloudflare.com` because the service was left running. After deployment, the Alpine VM root filesystem was about 92% used because Docker uses `vfs`; stopped containers/images/build cache were pruned without touching volumes before rebuild.
 
