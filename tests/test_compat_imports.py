@@ -18,6 +18,32 @@ class CompatImportTests(unittest.TestCase):
         self.assertTrue(BASE_DIR.is_absolute())
         self.assertIsInstance(_CONFIG, BotConfig)
 
+    def test_logged_gpt_common_billing_mdbuffer_imports_are_available(self) -> None:
+        from pyylmao.commands.gpt import common
+        from pyylmao.commands.gpt.billing import cents, cost_from_response
+        from pyylmao.commands.gpt.mdbuffer import MDBuffer, render_markdown
+
+        self.assertEqual(common.parse_prompt("hy, hi", {"hy"}), ("hy", "hi"))
+        self.assertEqual(common.resolve_model("gpt"), "openai/gpt-oss-120b")
+        self.assertEqual(cents("0.0001"), "0.01")
+        self.assertEqual(str(cost_from_response({"usage": {"cost": "0.0001"}})), "0.0001")
+
+        buffer = MDBuffer()
+        buffer.writeline("**hello**")
+        self.assertEqual(buffer.render(), "hello")
+        self.assertEqual(render_markdown("*ok*"), "ok")
+
+    def test_logged_llm_submodules_are_importable(self) -> None:
+        from llm.models import Model, get_model
+        from llm.tools import Tool, get_tools
+        import llm
+
+        self.assertIs(llm.model, llm.get_model)
+        self.assertIs(get_model, llm.get_model)
+        self.assertIs(Model, type(llm.get_model("openrouter/openai/gpt-oss-120b")))
+        self.assertEqual(Tool.__name__, "GeneratedTool")
+        self.assertIs(get_tools, llm.get_tools)
+
     def test_runner_finds_toolbox_class(self) -> None:
         module = ModuleType("generated_test")
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .common import parse_options, parse_prompt, resolve_model
 from .tools import (
     channel_list,
     create_skill,
@@ -51,11 +52,14 @@ __all__ = [
     "llm_version",
     "query_skill",
     "query_skills",
+    "parse_options",
+    "parse_prompt",
     "read_artifact",
     "read_command",
     "read_skill",
     "remember",
     "revise_pattern",
+    "resolve_model",
     "run",
     "save_artifact",
     "search_memories",
