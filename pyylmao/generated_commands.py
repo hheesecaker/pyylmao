@@ -811,9 +811,10 @@ def llm_api_module() -> ModuleType:
     module.MessageEvent = MessageEvent  # type: ignore[attr-defined]
     module.Attachment = Attachment  # type: ignore[attr-defined]
     module.get_model = get_model  # type: ignore[attr-defined]
+    module.model = get_model  # type: ignore[attr-defined]
     module.get_tools = get_tools  # type: ignore[attr-defined]
     module._pyylmao_api = True  # type: ignore[attr-defined]
-    module.__all__ = ["Toolbox", "MessageEvent", "Attachment", "get_model", "get_tools"]  # type: ignore[attr-defined]
+    module.__all__ = ["Toolbox", "MessageEvent", "Attachment", "get_model", "model", "get_tools"]  # type: ignore[attr-defined]
     return module
 
 

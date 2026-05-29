@@ -91,3 +91,6 @@ class BotConfig:
                 os.getenv("PYYLMAO_BSKY_SEARCH_LIMIT", str(cls.bluesky_search_limit))
             ),
         )
+
+
+_CONFIG = BotConfig.from_env()

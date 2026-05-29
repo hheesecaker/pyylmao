@@ -978,6 +978,38 @@ class GeneratedCommandStoreTests(unittest.TestCase):
         self.assertIn("make a poll", calls[0][0])
         self.assertIn("IrcPoll", calls[0][0])
 
+    def test_logged_llm_model_alias_works_in_generated_commands(self) -> None:
+        store, state, tmp = self.make_store()
+        path = Path(tmp.name) / "llm_alias.py"
+        path.write_text(
+            "\n".join(
+                [
+                    "import llm",
+                    "pattern = r'^!llmalias (.+)$'",
+                    "def entrypoint(args, channel, nickname, username, hostname):",
+                    "    response = llm.model('openrouter/openai/gpt-oss-120b').prompt(args[0])",
+                    "    print(response.text())",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        state.data["generated_commands"] = {"llm_alias": {"path": str(path), "pattern": r"^!llmalias (.+)$"}}
+        calls: list[tuple[str, str]] = []
+
+        def fake_chat(self, prompt: str, model: str, tools=None, max_tool_rounds: int = 8, **_) -> LLMResult:
+            del self, tools, max_tool_rounds
+            calls.append((prompt, model))
+            return LLMResult(["ok alias"], 0.0, None, None, model)
+
+        with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}), patch(
+            "pyylmao.llm.OpenRouterClient.chat",
+            fake_chat,
+        ):
+            self.assertEqual(store.handle("alice", "#c", "!llmalias hello"), ["ok alias"])
+
+        self.assertEqual(calls, [("hello", "openai/gpt-oss-120b")])
+
     def test_logged_llm_prompt_options_work_in_generated_commands(self) -> None:
         store, state, tmp = self.make_store()
         path = Path(tmp.name) / "judge.py"
@@ -1167,6 +1199,49 @@ class GeneratedCommandStoreTests(unittest.TestCase):
         self.assertEqual(
             store.handle("alice", "#c", "!caller"),
             ["pyylmao_generated_commands", "alice@#c: smoke"],
+        )
+
+    def test_logged_gpt_tools_imports_bind_to_generated_runtime(self) -> None:
+        store, state, tmp = self.make_store()
+        path = Path(tmp.name) / "gpttools.py"
+        path.write_text(
+            "\n".join(
+                [
+                    "from pyylmao.commands.gpt.tools import (",
+                    "    get_enabled_tools,",
+                    "    list_artifact,",
+                    "    read_artifact,",
+                    "    read_command,",
+                    "    save_artifact,",
+                    ")",
+                    "pattern = r'^!gpttools$'",
+                    "def entrypoint(args, channel, nickname, username, hostname):",
+                    "    print(save_artifact(filename='2/demo.txt', contents='hello', create_dirs='true'))",
+                    "    print(read_artifact('2/demo.txt'))",
+                    "    print(list_artifact('2'))",
+                    "    tools = get_enabled_tools(['read_command', 'run'])",
+                    "    print('read_command' in tools)",
+                    "    print(tools['read_command'].plugin)",
+                    "    print(read_command('ping').splitlines()[0])",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        state.data["generated_commands"] = {"gpttools": {"path": str(path), "pattern": r"^!gpttools$"}}
+
+        lines = store.handle("alice", "#c", "!gpttools")
+        assert lines is not None
+        self.assertTrue(lines[0].startswith("━━☛ New artifact: "))
+        self.assertEqual(
+            lines[1:],
+            [
+                "hello",
+                "2/demo.txt",
+                "True",
+                "llm_cmd_tools",
+                "from __future__ import annotations",
+            ],
         )
 
 

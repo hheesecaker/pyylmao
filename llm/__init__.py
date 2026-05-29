@@ -12,6 +12,7 @@ from pyylmao.generated_commands import (
     get_tools,
 )
 
+model = get_model
 _pyylmao_api = True
 
 __all__ = [
@@ -23,5 +24,6 @@ __all__ = [
     "MessageEvent",
     "Toolbox",
     "get_model",
+    "model",
     "get_tools",
 ]

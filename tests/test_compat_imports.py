@@ -4,7 +4,7 @@ from pathlib import Path
 from types import ModuleType
 import unittest
 
-from pyylmao.config import ASSETS_DIR, BASE_DIR, DATA_DIR
+from pyylmao.config import ASSETS_DIR, BASE_DIR, DATA_DIR, BotConfig, _CONFIG
 from pyylmao.generated_commands import Toolbox
 from pyylmao import ircbot
 from pyylmao.runner import _find_toolbox_class
@@ -16,6 +16,7 @@ class CompatImportTests(unittest.TestCase):
         self.assertIsInstance(ASSETS_DIR, Path)
         self.assertIsInstance(DATA_DIR, Path)
         self.assertTrue(BASE_DIR.is_absolute())
+        self.assertIsInstance(_CONFIG, BotConfig)
 
     def test_runner_finds_toolbox_class(self) -> None:
         module = ModuleType("generated_test")
